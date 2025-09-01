@@ -1,6 +1,6 @@
 <title>Throttle</title>
 <center>
-<h4>-=- click -=-</h4>
+<h4>-=- none -=-</h4>
 </center>
 
 <script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.js"></script>
@@ -12,31 +12,19 @@
 
 <script>
 var label = document.querySelector('h4');
-var clickStream = Rx.Observable.fromEvent(document, 'click')
+var clicks = Rx.Observable.fromEvent(document, 'click')
 
-// HERE
-// The 4 lines of code that make the multi-click logic
-var multiClickStream = clickStream
-    .buffer(function() { return clickStream.throttle(250); })
-    .map(function(list) { return list.length; })
-    .filter(function(x) { return x >= 2; });
+var multis = clicks
+    .buffer(function() { return clicks.throttle(250); })
+    .map(function(l) { return l.length; })
 
-// Same as above, but detects single clicks
-var singleClickStream = clickStream
-    .buffer(function() { return clickStream.throttle(250); })
-    .map(function(list) { return list.length; })
-    .filter(function(x) { return x === 1; });
-
-// Listen to both streams and render the text label accordingly
-singleClickStream.subscribe(function (event) {
-    label.textContent = 'click';
+multis.subscribe(function (n) {
+    label.textContent = ''+n+'x clicks';
 });
-multiClickStream.subscribe(function (numclicks) {
-    label.textContent = ''+numclicks+'x click';
-});
-Rx.Observable.merge(singleClickStream, multiClickStream)
+
+multis
     .throttle(1000)
-    .subscribe(function (suggestion) {
-        label.textContent = '';
+    .subscribe(function () {
+        label.textContent = '-=- none -=-';
     });
 </script>

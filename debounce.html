@@ -1,31 +1,25 @@
 <title>Debounce</title>
 <center>
-<h4>-=- click -=-</h4>
+<h4>-=- none -=-</h4>
 </center>
 
 <script src="rx.all.js"></script>
 
 <script>
 var label = document.querySelector('h4');
-var clickStream = Rx.Observable.fromEvent(document, 'click')
+var clicks = Rx.Observable.fromEvent(document, 'click')
 
-var tripleClickStream = clickStream
-  .buffer(function () {
-    return clickStream.debounce(250)
-  })
-  .map(function(arr) {
-    return arr.length
-  })
-  .filter(function (len) {
-    return len === 3
-  });
+var multis = clicks
+    .buffer(function () { return clicks.debounce(250) })
+    .map(function(l) { return l.length })
 
-tripleClickStream.subscribe(function(event) {
-  label.textContent = 'TRIPLE CLICK!!!';
+multis.subscribe(function(n) {
+    label.textContent = ''+n+'x clicks';
 });
-tripleClickStream
-  .debounce(1000)
-  .subscribe(function (suggestion) {
-    label.textContent = '-';
-  });
+
+multis
+    .debounce(1000)
+    .subscribe(function (suggestion) {
+        label.textContent = '-=- none -=-';
+    });
 </script>
