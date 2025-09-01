@@ -11,20 +11,20 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs-dom/2.0.7/rx.dom.js"></script>
 
 <script>
-var label = document.querySelector('h4');
+var label = document.querySelector('h4')
 var clicks = Rx.Observable.fromEvent(document, 'click')
 
 var multis = clicks
-    .buffer(function() { return clicks.throttle(250); })
-    .map(function(l) { return l.length; })
+    .buffer(function() { return clicks.throttle(250) })
+    .map(function(l) { return l.length })
 
 multis.subscribe(function (n) {
-    label.textContent = ''+n+'x clicks';
-});
+    label.textContent = ''+n+'x clicks'
+})
 
 multis
     .throttle(1000)
     .subscribe(function () {
-        label.textContent = '-=- none -=-';
-    });
+        label.textContent = '-=- none -=-'
+    })
 </script>

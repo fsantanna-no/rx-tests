@@ -6,20 +6,20 @@
 <script src="rx.all.js"></script>
 
 <script>
-var label = document.querySelector('h4');
+var label = document.querySelector('h4')
 var clicks = Rx.Observable.fromEvent(document, 'click')
 
 var multis = clicks
     .buffer(function () { return clicks.debounce(250) })
     .map(function(l) { return l.length })
 
-multis.subscribe(function(n) {
-    label.textContent = ''+n+'x clicks';
-});
+multis.subscribe(function (n) {
+    label.textContent = ''+n+'x clicks'
+})
 
 multis
     .debounce(1000)
-    .subscribe(function (suggestion) {
-        label.textContent = '-=- none -=-';
-    });
+    .subscribe(function () {
+        label.textContent = '-=- none -=-'
+    })
 </script>
