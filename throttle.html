@@ -1,0 +1,42 @@
+<title>Throttle</title>
+<center>
+<h4>-=- click -=-</h4>
+</center>
+
+<script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.async.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.coincidence.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.binding.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs/2.2.26/rx.time.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/rxjs-dom/2.0.7/rx.dom.js"></script>
+
+<script>
+var label = document.querySelector('h4');
+var clickStream = Rx.Observable.fromEvent(document, 'click')
+
+// HERE
+// The 4 lines of code that make the multi-click logic
+var multiClickStream = clickStream
+    .buffer(function() { return clickStream.throttle(250); })
+    .map(function(list) { return list.length; })
+    .filter(function(x) { return x >= 2; });
+
+// Same as above, but detects single clicks
+var singleClickStream = clickStream
+    .buffer(function() { return clickStream.throttle(250); })
+    .map(function(list) { return list.length; })
+    .filter(function(x) { return x === 1; });
+
+// Listen to both streams and render the text label accordingly
+singleClickStream.subscribe(function (event) {
+    label.textContent = 'click';
+});
+multiClickStream.subscribe(function (numclicks) {
+    label.textContent = ''+numclicks+'x click';
+});
+Rx.Observable.merge(singleClickStream, multiClickStream)
+    .throttle(1000)
+    .subscribe(function (suggestion) {
+        label.textContent = '';
+    });
+</script>
