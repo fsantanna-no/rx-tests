@@ -21,50 +21,26 @@ set WIN = SDL.createWindow @{
 
 set REN = SDL.createRenderer(WIN,-1) --> assert
 set sdl.ren = REN
-set FNT = TTF.open("DejaVuSans.ttf", 10) --> assert
+set FNT = TTF.open("DejaVuSans.ttf", 20) --> assert
 
-var txts = "-=- none -=-"
+var txt = "-=- none -=-"
 
 spawn {
     every :sdl.draw {
         REN::setDrawColor(0x000000)
         REN::clear()
         REN::setDrawColor(0xFFFFFF)
-        REN::fillRect(rect)
-        loop i,t in txts {
-            sdl.write(FNT, t, @{x=256-70, y=20+(i*15)})
-        }
+        sdl.write(FNT, txt, @{x=256/2, y=256/2})
         REN::present()
     }
 }
 
-func Buffer (src, ctl) {
-    val ret = #{}
-    val v = await(src)
-    set ret[+] = v
-    watching ctl {
-        every v in src {
-            set ret[+] = v
-        }
-    }
-    ret
-}
+val clicks = S.fr_awaits(SDL.event.MouseButtonDown)
 
-val clear =
-    S.fr_spawns(Debounce, _or_(SDL.event.MouseButtonDown,SDL.event.MouseButtonUp), @1)
-        ::tap \{ set txts = #{} }
-
-val dn = 
-    S.fr_awaits(:sdl.mouse.button.dn)
-        ::tap \(_,pos,n) {
-            set txts[+] = "dn (" ++ pos.x++','++pos.y ++"): " ++ n
-        }
-
-val up =
-    S.fr_awaits(:sdl.mouse.button.up)
-        ::tap \(_,pos,n) {
-            set txts[+] = "up (" ++ pos.x++','++pos.y ++")"
-        }
-
-S.from@{clear,dn,up}::xpar()::to()
-await(false)
+val multis = clicks
+    ::buffer(clicks::debounce(S.from(@.250)))
+    ::map \{#it}
+    ::tap \{set txt = tostring(it) ++ "x clicks"}
+    ::debounce(S.from(@1))
+    ::tap \{set txt = "-=- none -=-"}
+    ::to()
