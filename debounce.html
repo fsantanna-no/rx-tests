@@ -9,15 +9,12 @@
 var label = document.querySelector('h4')
 var clicks = Rx.Observable.fromEvent(document, 'click')
 
-var multis = clicks
+clicks
     .buffer(function () { return clicks.debounce(250) })
     .map(function(l) { return l.length })
-
-multis.subscribe(function (n) {
-    label.textContent = ''+n+'x clicks'
-})
-
-multis
+    .tap(function (n) {
+        label.textContent = ''+n+'x clicks'
+    })
     .debounce(1000)
     .subscribe(function () {
         label.textContent = '-=- none -=-'

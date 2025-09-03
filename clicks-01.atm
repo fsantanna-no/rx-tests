@@ -36,11 +36,10 @@ spawn {
 }
 
 val clicks = S.fr_awaits(SDL.event.MouseButtonDown)
-
-val multis = clicks
-    ::buffer(clicks::debounce(S.from(@.250)))
+clicks
+    ::buffer(clicks::debounce \{S.from @.250})
     ::map \{#it}
     ::tap \{set txt = tostring(it) ++ "x clicks"}
-    ::debounce(S.from(@1))
+    ::debounce \{ S.from @1 }
     ::tap \{set txt = "-=- none -=-"}
     ::to()
