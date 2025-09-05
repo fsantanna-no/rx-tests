@@ -1,0 +1,75 @@
+val SDL = require "SDL"
+val TTF = require "SDL.ttf"
+require "atmos"
+set sdl = require "atmos.env.sdl"
+val S = require "atmos.lang.streams"
+
+SDL.init() --> assert
+TTF.init() --> assert
+
+defer {
+    TTF.quit()
+    SDL.quit()
+}
+
+set WIN = SDL.createWindow @{
+	title  = "Atmos-SDL: Clicks",
+	width  = 256,
+	height = 256,
+    flags  = @{ SDL.flags.OpenGL },
+} --> assert
+
+set REN = SDL.createRenderer(WIN,-1) --> assert
+set sdl.ren = REN
+set FNT = TTF.open("DejaVuSans.ttf", 20) --> assert
+
+var txt
+
+spawn {
+    every :sdl.draw {
+        REN::setDrawColor(0x000000)
+        REN::clear()
+        REN::setDrawColor(0xFFFFFF)
+        sdl.write(FNT, txt, @{x=256/2, y=256/2})
+        REN::present()
+    }
+}
+
+spawn {
+    loop {
+        set txt = "-=- none -=-"
+        val _,x = await :clicks
+        var n = x
+        loop {
+            set txt = tostring(n) ++ "x clicks"
+            val _,x = watching :clicks {
+                await @1
+                break()
+            }
+            set n = x
+        }
+    }
+}
+
+loop {
+    await <- SDL.event.MouseButtonDown
+    var n = 1
+    loop {
+        watching SDL.event.MouseButtonDown {
+            await @.250
+            break()
+        }
+        set n = n + 1
+    }
+    emit(:clicks, n)
+}
+
+;;;
+clicks
+    ::buffer(clicks::debounce \{S.from @.250})
+    ::map \{#it}
+    ::tap \{set txt = tostring(it) ++ "x clicks"}
+    ::debounce \{ S.from @1 }
+    ::tap \{set txt = "-=- none -=-"}
+    ::to()
+;;;
