@@ -1,0 +1,7 @@
+require "atmos.env.clock"
+val S = require "atmos.streams"
+
+S.from @1
+    ::mapi \{ tostring(it) ++ " seconds" }
+    ::take(5)
+    ::to_print()

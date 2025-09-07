@@ -1,0 +1,7 @@
+require "atmos.env.clock"
+val S = require "atmos.streams"
+
+loop i in 5 {
+    await @1
+    print <-- tostring(i+1) ++ " seconds"
+}
