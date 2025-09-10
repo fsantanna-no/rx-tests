@@ -1,0 +1,10 @@
+require "atmos.env.clock"
+val S = require "atmos.streams"
+
+loop i in 3 {
+    await @1
+    S.from @1
+        ::mapi \{"round "++i++": "++it++"s"}
+        ::take(5)
+        ::to_print()
+}
