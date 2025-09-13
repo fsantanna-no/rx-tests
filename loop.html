@@ -1,0 +1,16 @@
+<title>Loop</title>
+<center>
+<h4>-=- click -=-</h4>
+</center>
+
+<script src="rx.all.js"></script>
+
+<script>
+var label = document.querySelector("h4")
+Rx.Observable.fromEvent(document, "click")
+    .subscribe(function () {
+        console.log("clicked")
+        label.textContent = "clicked"
+        while (true) {}
+    })
+</script>
